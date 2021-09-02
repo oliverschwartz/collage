@@ -2,7 +2,6 @@
 
 module Space where
 
-
 type Width = Int
 type Height = Int
 type Aspect = (Width, Height)
@@ -35,6 +34,3 @@ splitFrame fr xSpl ySpl
                 tr = Frame (w - xSpl, h - ySpl) (fx + xSpl, fy + ySpl) []
             in Right $ Frame (fx, fy) (w, h) [bl, br, tl, tr]
 
-
-            
-            
