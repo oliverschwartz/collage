@@ -26,7 +26,8 @@ saveImage :: String -> Image PixelRGB8 -> IO ()
 saveImage filename img = do
     filepath <- getDataFileName filename
     saveJpgImage 100 filepath (ImageRGB8 img)
-  
+
+-- Linear blending of pixels.   
 blendPixels :: [PixelRGB8] -> PixelRGB8
 blendPixels pixels = 
     let n = fromIntegral (length pixels) :: Float
@@ -41,7 +42,7 @@ blendPixels pixels =
 
 getNbors :: Int -> Int -> Width -> Height -> [(Int, Int)]
 getNbors x y w h = 
-    let n = 1
+    let n = 2
         nbors = [(x', y') | x' <- [x-n..x+n], y' <- [y-n..y+n]]
         f = filter (\(x', y') -> 0 <= x' && x' < w && 0 <= y' && y' < h)
     in f nbors
