@@ -1,4 +1,4 @@
--- space.hs
+-- Space.hs
 
 module Space where
 
