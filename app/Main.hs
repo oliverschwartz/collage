@@ -5,7 +5,8 @@ import ImageProcessor
 
 main :: IO ()
 main = do 
-    getAndResizeImage "download.jpg" "saved.jpg"
+    let (w, h) = (200, 400)
+    getAndResizeImage "download.jpg" "saved.jpg" w h
     putStrLn "done"
     
 
