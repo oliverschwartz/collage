@@ -29,10 +29,10 @@ splitFrameFour (Frame (Dim (w, h)) (fx, fy) nest) xSpl ySpl
         if (0 >= xSpl || xSpl >= w || 
             0 >= ySpl || ySpl >= h) then Left BadSplit
         else 
-            let bl = Frame (Dim (xSpl, ySpl))         (fx, fy)                []
-                br = Frame (Dim (w - xSpl, ySpl))     (fx + xSpl, fy)         []
-                tl = Frame (Dim (xSpl, h - ySpl))     (fx, fy + ySpl)         []
-                tr = Frame (Dim (w - xSpl, h - ySpl)) (fx + xSpl, fy + ySpl)  []
+            let bl = Frame (Dim (xSpl, ySpl))         (fx, fy)               []
+                br = Frame (Dim (w - xSpl, ySpl))     (fx + xSpl, fy)        []
+                tl = Frame (Dim (xSpl, h - ySpl))     (fx, fy + ySpl)        []
+                tr = Frame (Dim (w - xSpl, h - ySpl)) (fx + xSpl, fy + ySpl) []
             in Right $ Frame (Dim (w, h)) (fx, fy) [bl, br, tl, tr]
 
 -- Split an empty frame two ways. 

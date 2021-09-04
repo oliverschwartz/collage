@@ -42,3 +42,7 @@ Sessionx.vim
 tags
 # Persistent undo
 [._]*.un~
+
+# JPG files
+*.jpg
+*.jpeg
