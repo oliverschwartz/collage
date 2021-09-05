@@ -2,52 +2,52 @@
 
 module Space where
 
+import ImageProcessor
+
 type Width = Int
 type Height = Int
-type Coor = (Int, Int)
+data Coor = Coor (Int, Int) deriving (Eq, Show)
 data Dim = Dim (Width, Height) deriving (Eq, Show)
-
-data Frame = Frame {
-    frameDim    :: Dim,
-    frameCoor   :: Coor,
-    frameNest   :: [Frame]
-} deriving (Eq, Show)
+data Split = V | H deriving (Eq, Show)
+data Frame = Frame { frameDim :: Dim, frameCoor :: Coor} deriving Eq
+data Tree = Leaf Frame ImageP | Node Frame [Tree]
 data FrameError = NonEmpty | BadSplit deriving (Eq, Show)
-data Split = V | H deriving Eq
 
-zeroCoor :: Coor
-zeroCoor = (0, 0)
+-- Make a new tree with one image.
+makeTree :: ImageP -> Width -> Height -> Tree
+makeTree img w h = Leaf (Frame (Dim (w, h)) (Coor (0, 0))) img
 
-makeFrame :: Width -> Height -> Frame
-makeFrame w h = Frame (Dim (w, h)) zeroCoor []
-
--- Split an empty frame four ways.
-splitFrameFour :: Frame -> Int -> Int -> Either FrameError Frame
-splitFrameFour (Frame (Dim (w, h)) (fx, fy) nest) xSpl ySpl
-    | not . null $ nest = Left NonEmpty 
+-- Add an image to the collage.
+addImage :: Tree -> ImageP -> Maybe Tree
+addImage t@(Leaf (Frame (Dim (w, _)) _) _) img' = 
+    case splitFrame t (w `div` 2) V img' of 
+            Left err -> Nothing
+            Right t' -> Just t'
+addImage (Node fr nested) img'
+    | null nested = error "Empty node"
     | otherwise = 
-        if (0 >= xSpl || xSpl >= w || 
-            0 >= ySpl || ySpl >= h) then Left BadSplit
+        case addImage (head nested) img' of 
+            Just hd -> Just $ Node fr (hd : tail nested)
+            Nothing -> Nothing
+        
+-- Split a frame two ways (vertically or horizontally).
+splitFrame :: Tree -> Int -> Split -> ImageP -> Either FrameError Tree
+splitFrame (Leaf fr@(Frame (Dim (w, h)) (Coor (fx, fy))) img) pos spl img'
+    | spl == V = 
+        if (0 >= pos || pos >= w) then Left BadSplit
         else 
-            let bl = Frame (Dim (xSpl, ySpl))         (fx, fy)               []
-                br = Frame (Dim (w - xSpl, ySpl))     (fx + xSpl, fy)        []
-                tl = Frame (Dim (xSpl, h - ySpl))     (fx, fy + ySpl)        []
-                tr = Frame (Dim (w - xSpl, h - ySpl)) (fx + xSpl, fy + ySpl) []
-            in Right $ Frame (Dim (w, h)) (fx, fy) [bl, br, tl, tr]
+            let lfr = Frame (Dim (pos, h))     (Coor (fx, fy))
+                rfr = Frame (Dim (w - pos, h)) (Coor (fx + pos, fy))
+                l = Leaf lfr img
+                r = Leaf rfr img'
+            in Right $ Node fr [l, r]
+    | otherwise = 
+        if (0 >= pos || pos >= h) then Left BadSplit
+        else 
+            let bfr = Frame (Dim (w, pos))     (Coor (fx, fy))
+                tfr = Frame (Dim (w, h - pos)) (Coor (fx, fy + pos))
+                b = Leaf bfr img
+                t = Leaf tfr img'
+            in Right $ Node fr [b, t]
+splitFrame (Node _ _) _ _ _ = Left BadSplit
 
--- Split an empty frame two ways. 
-splitFrameTwo :: Frame -> Int -> Split -> Either FrameError Frame
-splitFrameTwo (Frame (Dim (w, h)) (fx, fy) nest) s vOrH
-    | not . null $ nest = Left NonEmpty
-    | vOrH == V = 
-        if (0 >= s || s >= w) then Left BadSplit
-        else 
-            let l = Frame (Dim (s, h))     (fx, fy)       []
-                r = Frame (Dim (w - s, h)) (fx + s, fy)   []
-            in Right $ Frame (Dim (w, h)) (fx, fy) [l, r]
-    | otherwise = -- vOrH == V
-        if (0 >= s || s >= h) then Left BadSplit
-        else 
-            let b = Frame (Dim (w, s))     (fx, fy)       []
-                t = Frame (Dim (w, h - s)) (fx, fy + s)   []
-            in Right $ Frame (Dim (w, h)) (fx, fy) [b, t]
