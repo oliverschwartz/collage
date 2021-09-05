@@ -1,6 +1,12 @@
 -- ImageProcessor.hs
 
-module ImageProcessor where
+module ImageProcessor (
+    getImage, 
+    saveImage, 
+    resizeImage, 
+    getAndResizeImage, 
+    ImageP
+) where
 
 import Codec.Picture
 import Paths_collage
@@ -10,6 +16,7 @@ import Data.Word
 -- Type aliases. 
 type Width = Int
 type Height = Int
+type ImageP = Image PixelRGB8
 
 -- Reads an image from the data/ directory.
 getImage :: String -> IO (Maybe (Image PixelRGB8))
