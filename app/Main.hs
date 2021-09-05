@@ -1,19 +1,18 @@
 module Main where
 
+import Data.Maybe
 import ImageUtils
 
 
 main :: IO ()
 main = do 
     imageNames <- getJPGNames 
-    mImg <- getImage $ head imageNames
-    case mImg of 
-        Nothing -> putStrLn "Failed to read image"
-        Just img -> do
-            let t = makeTree img 100 100
-            let t' = addImage
-            let resolved = resolveTree t
-            saveImage "singleResolved.jpg" resolved
+    mImgs <- mapM getImage imageNames
+    let imgs = catMaybes mImgs
+    let t = foldr f (makeTree (head imgs) 100 100) (tail imgs) where
+        f img tree = addImage tree img
+    let resolved = resolveTree t
+    saveImage "singleResolved.jpg" resolved
     -- mapM_ putStrLn imageNames
     
 

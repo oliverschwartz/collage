@@ -1,6 +1,13 @@
 -- ImageUtils.hs
 
-module ImageUtils where
+module ImageUtils (
+    getJPGNames, 
+    getImage, 
+    makeTree, 
+    addImage, 
+    resolveTree, 
+    saveImage
+) where
 
 import System.Directory
 import Codec.Picture
