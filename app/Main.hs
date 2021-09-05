@@ -1,25 +1,19 @@
 module Main where
 
-import System.Directory
-import Paths_collage
-import Space
-import ImageProcessor
+import ImageUtils
 
--- Only JPG images for now. 
-getImageNames :: IO [FilePath]
-getImageNames = do
-    filepath <- getDataFileName ""
-    let lastFour s = drop (length s - 4) s
-        isJpg s = elem (lastFour s) [".jpg", ".jpeg"]
-    contents <- getDirectoryContents filepath
-    return $ filter isJpg contents
 
 main :: IO ()
 main = do 
-    let (w, h) = (200, 600)
-    getAndResizeImage "download.jpg" "saved.jpg" w h
-    imageNames <- getImageNames 
-    let n = length imageNames
-    mapM_ putStrLn imageNames
+    imageNames <- getJPGNames 
+    mImg <- getImage $ head imageNames
+    case mImg of 
+        Nothing -> putStrLn "Failed to read image"
+        Just img -> do
+            let t = makeTree img 100 100
+            let t' = addImage
+            let resolved = resolveTree t
+            saveImage "singleResolved.jpg" resolved
+    -- mapM_ putStrLn imageNames
     
 
