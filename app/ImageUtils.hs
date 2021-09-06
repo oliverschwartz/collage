@@ -9,6 +9,7 @@ module ImageUtils (
     saveImage
 ) where
 
+import System.Random
 import System.Directory
 import Codec.Picture
 import Data.Word
@@ -37,16 +38,20 @@ makeTree :: ImageP -> Width -> Height -> Tree
 makeTree img w h = Leaf (Frame (Dim (w, h)) (Coor (0, 0))) img
 
 -- Add an image to the collage. TODO: remove runtime errors.
-addImage :: Tree -> ImageP -> Tree
-addImage t@(Leaf (Frame (Dim (w, _)) _) _) img' = 
-    case splitFrame t (w `div` 2) V img' of 
+addImage :: Tree -> ImageP -> IO Tree
+addImage t@(Leaf (Frame (Dim (w, h)) _) _) img = do 
+    idx <- randomRIO (0, 1)
+    let (dir, dim) = [(V, w), (H, h)] !! idx
+    case splitFrame t (dim `div` 2) dir img of 
             Left err -> error $ show err
-            Right t' -> t'
-addImage (Node fr nested) img'
+            Right t' -> return t'
+addImage (Node fr nested) img
     | null nested = error "Empty node"
-    | otherwise = 
-        let hd = addImage (head nested) img'
-        in Node fr (hd : tail nested)
+    | otherwise = do
+        idx <- randomRIO (0, length nested - 1)
+        added <- addImage (nested !! idx) img
+        let rest = (take idx nested) ++ (drop (idx + 1) nested)
+        return $ Node fr (added : rest)
 
 -- Given a collage tree, return the stitched image of the collage.
 resolveTree :: Tree -> ImageP

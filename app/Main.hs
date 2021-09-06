@@ -9,9 +9,12 @@ main = do
     imageNames <- getJPGNames 
     mImgs <- mapM getImage imageNames
     let imgs = catMaybes mImgs
-    let t = foldr f (makeTree (head imgs) 100 100) (tail imgs) where
-        f img tree = addImage tree img
-    let resolved = resolveTree t
+    let t = foldr f (return (makeTree (head imgs) 100 100)) (tail imgs) where
+        f img iotree = do 
+            tree <- iotree
+            addImage tree img
+    t' <- t
+    let resolved = resolveTree t'
     saveImage "singleResolved.jpg" resolved
     -- mapM_ putStrLn imageNames
     

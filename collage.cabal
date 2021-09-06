@@ -32,6 +32,7 @@ executable collage
     -- other-extensions:
     build-depends:    base ^>=4.14.3.0, 
                       JuicyPixels, 
-                      directory
+                      directory, 
+                      random
     hs-source-dirs:   app
     default-language: Haskell2010
